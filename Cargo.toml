@@ -1,5 +1,5 @@
 [package]
-name = "ll"
+name = "log_manager"
 version = "0.1.0"
 edition = "2024"
 description = "log manager using tracing crates"
