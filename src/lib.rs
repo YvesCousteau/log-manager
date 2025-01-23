@@ -1,7 +1,7 @@
 use std::{fs, path::PathBuf};
 
 use chrono::Utc;
-use error::LogManagerError;
+use error::Error;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
 use tracing_subscriber::prelude::*;
 
@@ -13,13 +13,13 @@ mod util;
 /// # Fields
 /// - `guard` : A guard that flushes spans/events associated to a `NonBlocking`.
 /// - `path`  : A path where file is stored.
-pub struct LogManager {
+pub struct  {
     pub path: PathBuf,
     pub guard: WorkerGuard,
 }
 
-impl LogManager {
-    /// Initializes a new `LogManager` with the given log level, the rotation file and the max log
+impl  {
+    /// Initializes a new `` with the given log level, the rotation file and the max log
     /// files.
     ///
     /// # Arguments
@@ -30,7 +30,7 @@ impl LogManager {
     ///
     /// # Returns
     ///
-    /// Returns a new `LogManager` instance if successful.
+    /// Returns a new `` instance if successful.
     ///
     /// # Errors
     ///
@@ -44,17 +44,17 @@ impl LogManager {
         log_level: &str,
         rotation_file: &str,
         max_log_files: usize,
-    ) -> Result<Self, LogManagerError> {
+    ) -> Result<Self, Error> {
         let log_level = util::get_log_level(log_level)?;
         let rotation_file = util::get_rotation_file(rotation_file)?;
         let bin_name = util::get_bin_name()?;
 
         let mut path =
-            dirs_2::data_local_dir().ok_or(LogManagerError::DirectoryDataLocalNotFound)?;
+            dirs_2::data_local_dir().ok_or(Error::DirectoryDataLocalNotFound)?;
         path.push(bin_name.clone());
 
         fs::create_dir_all(&path)
-            .map_err(|e| LogManagerError::DirectoryCreationFailed(e.to_string()))?;
+            .map_err(|e| Error::DirectoryCreationFailed(e.to_string()))?;
 
         // automatically creates new log files every hour
         let file_appender = RollingFileAppender::builder()
@@ -63,7 +63,7 @@ impl LogManager {
             .filename_suffix("log")
             .max_log_files(max_log_files)
             .build(path.clone())
-            .map_err(|err| LogManagerError::RollingFileFailed(err.to_string()))?;
+            .map_err(|err| Error::RollingFileFailed(err.to_string()))?;
 
         // allows the application to continue running without waiting for I/O operations to complete
         let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
@@ -89,7 +89,7 @@ impl LogManager {
             );
 
         tracing::subscriber::set_global_default(subscriber)
-            .map_err(|e| LogManagerError::LogSubscriberFailed(e.to_string()))?;
+            .map_err(|e| Error::LogSubscriberFailed(e.to_string()))?;
         tracing::info!("{} logging files are set at: {:?}", bin_name, path);
         Ok(Self { path, guard })
     }
@@ -105,9 +105,9 @@ mod tests {
     #[serial]
     #[test]
     fn test_invalid_log_level() {
-        let result = LogManager::new("to_fail", "HOURLY", 1);
+        let result = ::new("to_fail", "HOURLY", 1);
         match result {
-            Err(LogManagerError::InvalidLogLevelFormat) => (),
+            Err(Error::InvalidLogLevelFormat) => (),
             _ => panic!("Expected InvalidLogLevelFormat error"),
         }
     }
@@ -115,9 +115,9 @@ mod tests {
     #[serial]
     #[test]
     fn test_invalid_rotation_file() {
-        let result = LogManager::new("INFO", "to_fail", 1);
+        let result = ::new("INFO", "to_fail", 1);
         match result {
-            Err(LogManagerError::InvalidRotationFileFormat) => (),
+            Err(Error::InvalidRotationFileFormat) => (),
             _ => panic!("Expected InvalidRotationFileFormat error"),
         }
     }
@@ -125,7 +125,7 @@ mod tests {
     #[serial]
     #[test]
     fn test_valid_log_manager_creation() {
-        let result = LogManager::new("TRACE", "HOURLY", 10);
+        let result = ::new("TRACE", "HOURLY", 10);
         assert!(result.is_ok());
 
         tracing::info!("test valid log");

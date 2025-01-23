@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum LogManagerError {
+pub enum Error {
     #[error("Log level format is invalid")]
     InvalidLogLevelFormat,
     #[error("Rotation file format is invalid")]
