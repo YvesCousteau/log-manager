@@ -1,6 +1,6 @@
 [package]
 name = "log_manager"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "log manager using tracing crates"
 license = "Apache-2.0"

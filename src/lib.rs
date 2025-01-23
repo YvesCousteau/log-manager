@@ -5,7 +5,7 @@ use error::LogManagerError;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
 use tracing_subscriber::prelude::*;
 
-mod error;
+pub mod error;
 mod util;
 
 /// Represents the log manager on which all log behavior operations will be setted.
