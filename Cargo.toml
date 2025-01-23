@@ -2,6 +2,11 @@
 name = "ll"
 version = "0.1.0"
 edition = "2024"
+description = "log manager using tracing crates"
+license = "Apache-2.0"
+documentation = "not yet"
+homepage = "https://github.com/YvesCousteau/log-manager"
+repository = "https://github.com/YvesCousteau/log-manager"
 
 [dependencies]
 dirs-2 = "3.0.1"
