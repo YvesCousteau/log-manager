@@ -11,7 +11,8 @@ mod util;
 /// Represents the log manager on which all log behavior operations will be setted.
 ///
 /// # Fields
-/// - `guard` : A guard that flushes spans/events associated to a NonBlocking.
+/// - `guard` : A guard that flushes spans/events associated to a `NonBlocking`.
+/// - `path`  : A path where file is stored.
 pub struct LogManager {
     pub path: PathBuf,
     pub guard: WorkerGuard,
@@ -106,7 +107,7 @@ mod tests {
     fn test_invalid_log_level() {
         let result = LogManager::new("to_fail", "HOURLY", 1);
         match result {
-            Err(LogManagerError::InvalidLogLevelFormat) => assert!(true),
+            Err(LogManagerError::InvalidLogLevelFormat) => (),
             _ => panic!("Expected InvalidLogLevelFormat error"),
         }
     }
@@ -116,7 +117,7 @@ mod tests {
     fn test_invalid_rotation_file() {
         let result = LogManager::new("INFO", "to_fail", 1);
         match result {
-            Err(LogManagerError::InvalidRotationFileFormat) => assert!(true),
+            Err(LogManagerError::InvalidRotationFileFormat) => (),
             _ => panic!("Expected InvalidRotationFileFormat error"),
         }
     }
@@ -171,8 +172,7 @@ mod tests {
         assert_eq!(
             cleaned_contents.trim(),
             format!(
-                "INFO log_manager: {} logging files are set at: {:?}\n  INFO log_manager::tests: test valid log\n ERROR log_manager::tests: test valid log\n  WARN log_manager::tests: test valid log\n DEBUG log_manager::tests: test valid log\n TRACE log_manager::tests: test valid log",
-                dir_name, dir_path
+                "INFO log_manager: {dir_name} logging files are set at: {dir_path:?}\n  INFO log_manager::tests: test valid log\n ERROR log_manager::tests: test valid log\n  WARN log_manager::tests: test valid log\n DEBUG log_manager::tests: test valid log\n TRACE log_manager::tests: test valid log",
             ),
             "Stdout and file content do not match"
         );

@@ -6,7 +6,7 @@ use tracing_appender::rolling::Rotation;
 use crate::error::LogManagerError;
 
 pub fn get_log_level(level: &str) -> Result<Level, LogManagerError> {
-    Ok(Level::from_str(level).map_err(|_| LogManagerError::InvalidLogLevelFormat)?)
+    Level::from_str(level).map_err(|_| LogManagerError::InvalidLogLevelFormat)
 }
 
 pub fn get_rotation_file(rotation_file: &str) -> Result<Rotation, LogManagerError> {
