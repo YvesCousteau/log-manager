@@ -13,12 +13,12 @@ mod util;
 /// # Fields
 /// - `guard` : A guard that flushes spans/events associated to a `NonBlocking`.
 /// - `path`  : A path where file is stored.
-pub struct  {
+pub struct LogManager {
     pub path: PathBuf,
     pub guard: WorkerGuard,
 }
 
-impl  {
+impl LogManager {
     /// Initializes a new `` with the given log level, the rotation file and the max log
     /// files.
     ///
@@ -40,21 +40,15 @@ impl  {
     /// * The directory creation failed.
     /// * The generation of file appender failed.
     /// * The creation of log subscriber failed.
-    pub fn new(
-        log_level: &str,
-        rotation_file: &str,
-        max_log_files: usize,
-    ) -> Result<Self, Error> {
+    pub fn new(log_level: &str, rotation_file: &str, max_log_files: usize) -> Result<Self, Error> {
         let log_level = util::get_log_level(log_level)?;
         let rotation_file = util::get_rotation_file(rotation_file)?;
         let bin_name = util::get_bin_name()?;
 
-        let mut path =
-            dirs_2::data_local_dir().ok_or(Error::DirectoryDataLocalNotFound)?;
+        let mut path = dirs_2::data_local_dir().ok_or(Error::DirectoryDataLocalNotFound)?;
         path.push(bin_name.clone());
 
-        fs::create_dir_all(&path)
-            .map_err(|e| Error::DirectoryCreationFailed(e.to_string()))?;
+        fs::create_dir_all(&path).map_err(|e| Error::DirectoryCreationFailed(e.to_string()))?;
 
         // automatically creates new log files every hour
         let file_appender = RollingFileAppender::builder()
@@ -105,7 +99,7 @@ mod tests {
     #[serial]
     #[test]
     fn test_invalid_log_level() {
-        let result = ::new("to_fail", "HOURLY", 1);
+        let result = LogManager::new("to_fail", "HOURLY", 1);
         match result {
             Err(Error::InvalidLogLevelFormat) => (),
             _ => panic!("Expected InvalidLogLevelFormat error"),
@@ -115,7 +109,7 @@ mod tests {
     #[serial]
     #[test]
     fn test_invalid_rotation_file() {
-        let result = ::new("INFO", "to_fail", 1);
+        let result = LogManager::new("INFO", "to_fail", 1);
         match result {
             Err(Error::InvalidRotationFileFormat) => (),
             _ => panic!("Expected InvalidRotationFileFormat error"),
@@ -125,7 +119,7 @@ mod tests {
     #[serial]
     #[test]
     fn test_valid_log_manager_creation() {
-        let result = ::new("TRACE", "HOURLY", 10);
+        let result = LogManager::new("TRACE", "HOURLY", 10);
         assert!(result.is_ok());
 
         tracing::info!("test valid log");
